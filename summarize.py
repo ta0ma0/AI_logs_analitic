@@ -1,11 +1,12 @@
 from prompts import summarisation
 from dotenv import load_dotenv
-import logger
+import logging
 import logger_config
 import os
 from llama_cpp import Llama
 from gpu_test import check_gpu
-
+from string import Template
+import time
 
 
 load_dotenv()
@@ -16,17 +17,13 @@ ENCODING = os.getenv("ENCODING", "UTF-8")  # Encode report
 AI_SUMMARY_FILE = os.getenv("AI_SUMMARY_FILE", "ai_summary.md")
 
 
-
-
-
 def read_reports(REPORT_FILE):
     with open(REPORT_FILE) as report_file:
         report_text = report_file.read()
     return report_text
 
 
-def summarisation():
-        # GPU check
+def summarisation_report():
     report_text = read_reports(REPORT_FILE)
     prompt = Template(summarisation).substitute(report=report_text)
     N_GPU = check_gpu()
@@ -37,7 +34,7 @@ def summarisation():
         model_path="/home/ruslan/.cache/lm-studio/models/bartowski/google_gemma-3-12b-it-GGUF/google_gemma-3-12b-it-Q4_K_S.gguf",
         n_gpu_layers=N_GPU, 
         # seed=1337, 
-        n_ctx=17000, 
+        n_ctx=6000, 
         use_mmap=True,
         verbose=False, # llama_cpp debug out (quiet)
 )
@@ -57,7 +54,6 @@ def summarisation():
             logging.error(f"Wrong LLM answer {output_dict}")
             answer = "Error: wrong format anser from  LLM."
 
-
     except Exception as e:
         logging.critical(f"!!! Unexpected error {e}")
         return None 
@@ -72,4 +68,10 @@ def _write_results(report_text):
         with open(AI_SUMMARY_FILE, 'a', encoding='utf-8') as file:
             file.write(report_text + "\n---\n")
     except Exception as e:
-        logging.error(f"!!! Error writing to file '{AI_RESULT_FILE}': {e}")
+        logging.error(f"!!! Error writing to file '{AI_SUMMARY_FILE}': {e}")
+
+
+if __name__ == "__main__":
+    logger_config.setup_logging()
+    logging.info("Logging was setup")
+    summarisation_report()
