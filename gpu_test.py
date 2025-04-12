@@ -1,5 +1,6 @@
 import subprocess
 import logger_config
+from logger_config import setup_logging
 import logging
 import datetime
 from datetime import datetime
@@ -28,7 +29,7 @@ def check_gpu():
         verbose=False, # Добавлено, чтобы уменьшить вывод от llama_cpp
     )
     """
-    MAX = 9
+    MAX = 8
     MIN = 4
     vmachine_marker = subprocess.run(['VBoxManage', 'list', 'runningvms'], capture_output=True, text=True, check=True)
 

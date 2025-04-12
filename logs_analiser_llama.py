@@ -1,26 +1,21 @@
 import os
-import sys
 import time
-import simple_web_server
-import socketserver
-import http.server
-import telegram
 import asyncio 
 import subprocess
-import markdown
 import threading
 import logger_config
 import logging
 import datetime
+import cleaning_logs
+from string import Template
 from llama_cpp import Llama
-from simple_web_server import ReportHandler
 from telegram_send import send as tg_send
 from dotenv import load_dotenv
-from telegram.constants import ParseMode
-from notify import notification
 from gpu_test import check_gpu
-from datetime import datetime
 from logger_config import setup_logging
+from cleaning_logs import delete_old_files
+from prompts import prompt_en, prompt_ru, prompt_ua
+
 
 
 load_dotenv()
@@ -32,6 +27,7 @@ PORT = int(os.getenv('PORT', 8000))  # Получаем порт из .env ил�
 SERVER_ADDRESS = os.getenv("SERVER_ADDRESS", "localhost.com")
 
 # Report name and log fole name.
+LOG_FOLDER = os.getenv("LOG_FOLDER", "logs")
 LOG_FILE = os.getenv("LOG_FILE", "daily_log_report.txt")
 AI_RESULT_FILE = os.getenv("AI_RESULT_FILE", "ai_result_llama.txt")
 
@@ -40,7 +36,9 @@ BOT_TOKEN = os.getenv('BOT_TOKEN')
 CHAT_ID = os.getenv('CHAT_ID')
 
 # GPU check
-N_GPU = check_gpu() 
+N_GPU = check_gpu()
+logging.info(f'Setup n_gpu_layers = {N_GPU}')
+
 
 
 llm = Llama(
@@ -53,61 +51,23 @@ llm = Llama(
 )
 
 
-
-
-# --- Logging setting up .env ---
-LOG_LEVEL_CONSOLE_STR = os.getenv("LOG_LEVEL_CONSOLE", "INFO").upper()
-LOG_LEVEL_FILE_STR = os.getenv("LOG_LEVEL_FILE", "DEBUG").upper()
-LOG_FOLDER = os.getenv("LOG_FOLDER", "logs")
-LOG_FILE_NAME_BASE = os.getenv("LOG_FILE_NAME_BASE", "app")
-LOG_FORMAT = os.getenv("LOG_FORMAT", '%(asctime)s - %(levelname)s - %(module)s:%(lineno)d - %(message)s')
-DATE_FORMAT = os.getenv("DATE_FORMAT", '%Y-%m-%d %H:%M:%S')
-
-# Logging constants logging
-LOG_LEVEL_CONSOLE = getattr(logging, LOG_LEVEL_CONSOLE_STR, logging.INFO)
-LOG_LEVEL_FILE = getattr(logging, LOG_LEVEL_FILE_STR, logging.DEBUG)
-
-# Create log file
-LOG_FILE_NAME = f"{LOG_FILE_NAME_BASE}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
-LOG_FILE_PATH = os.path.join(LOG_FOLDER, LOG_FILE_NAME)
-
-
 def log_analizator(chunk):
     """
     Llama linux log analitic
     """
-
-    prompt = f"""
-Q: Роль: Ты - эксперт по системным журналам Linux, обладающий глубокими знаниями о нормальном поведении системы Manjaro и распространенных признаках проблем.
-Задача: Проанализируй предоставленный фрагмент системных логов. Твоя задача - выявить любые записи, которые могут указывать на:
-
-    Сбои оборудования: Ошибки, связанные с дисками (например, SMART errors, I/O errors), памятью, процессором, сетевыми картами и другими аппаратными компонентами.
-    Проблемы с программным обеспечением: Критические ошибки приложений, сбои служб, проблемы с зависимостями, ошибки ядра (kernel panic, oops).
-    Подозрительную активность/потенциальные вторжения: Необычные попытки входа в систему (failed login attempts, особенно с неизвестных IP-адресов), изменения конфигурационных файлов, запуск подозрительных процессов, сетевая активность на необычных портах или с подозрительных IP-адресов, ошибки, связанные с безопасностью (например, SELinux/AppArmor denials, ошибки аутентификации).
-    Аномалии в работе системы: Неожиданные перезагрузки, зависания, высокая загрузка ресурсов без видимой причины, необъяснимые ошибки в работе ранее стабильных служб.
-
-Критерии анализа:
-
-    Обращай внимание на: Сообщения об ошибках (error, critical, alert, emerg), предупреждения (warning), необычные паттерны, повторяющиеся ошибки, сообщения, связанные с безопасностью (security), сообщения ядра (kernel).
-    Игнорируй: Информационные сообщения (info), отладочные сообщения (debug), записи о штатном запуске и остановке служб, плановые задачи (cron jobs), обычную сетевую активность, не связанную с подозрительными действиями.
-    Учитывай контекст: Попробуй понять взаимосвязь между различными записями журнала. Последовательность ошибок может указывать на основную проблему.
-
-Формат вывода:
-
-    Если подозрительные записи обнаружены, выведи их, выделив наиболее важные части (например, время, служба, сообщение об ошибке).
-    Для каждой подозрительной записи кратко объясни, почему она считается подозрительной и к какой категории проблем (сбой оборудования, ПО, вторжение, аномалия) она может относиться.
-    Если обнаружено несколько связанных подозрительных записей, сгруппируй их и опиши общую потенциальную проблему.
-    Если подозрительных записей не обнаружено, кратко сообщи об этом.
-
-Дополнительные указания (опционально):
-
-    Учитывай специфику системы Manjaro (например, используемые пакетные менеджеры, распространенные службы).
-    Обращай внимание на сообщения, связанные с обновлениями системы, которые могли завершиться неудачно.
-
-    {chunk}
-
-    A:
-    """ 
+    prompt = os.getenv('PROMPT_LANGUAGE', 'RU')
+    if prompt == 'EN':
+        prompt = Template(prompt_en).substitute(chunk=chunk)
+        logging.info(f"Chose language English")
+        print(chunk)
+    elif prompt == 'UA':
+        prompt = Template(prompt_ua).substitute(chunk=chunk)
+        logging.info(f"Chose language Ukrainian")
+        print(chunk)
+    else:
+        prompt = Template(prompt_ru).substitute(chunk=chunk)
+        logging.info(f"Chose language Russian")
+        print(chunk)
 
     answer = "Ошибка: Не удалось получить ответ от модели." # Значение по умолчанию
 
@@ -121,7 +81,7 @@ Q: Роль: Ты - эксперт по системным журналам Linu
         ) # Generate a completion
 
 
-        # Извлекаем текст ответа из словаря
+        # Extract text answer from dict 
         if output_dict and "choices" in output_dict and len(output_dict["choices"]) > 0 and "text" in output_dict["choices"][0]:
             answer = output_dict["choices"][0]["text"].strip() # Получаем текст и убираем лишние пробелы по краям
         else:
@@ -147,39 +107,21 @@ def chankinizator(log):
         with open(log, 'r', encoding='utf-8') as file:
             lines = file.readlines()
     except FileNotFoundError:
-        print(f"!!! Ошибка: Лог-файл '{log}' не найден.")
         logging.error(f"Log file not found {log}")
-        return [] # Возвращаем пустой итератор
+        return []
 
     for i in range(0, len(lines), chunk_size):
         chunk = lines[i:i + chunk_size]
         yield ''.join(chunk)
 
-def _write_results(report_text): # Функция теперь принимает строку
+def _write_results(report_text):
     report_text += "**Время создания:** " + time.strftime("%Y-%m-%d %H:%M:%S") + "\n\n"
     try:
         with open(AI_RESULT_FILE, 'a', encoding='utf-8') as file:
-            file.write(report_text + "\n---\n") # Добавляем разделитель между отчетами
+            file.write(report_text + "\n---\n")
     except Exception as e:
-        print(f"!!! Ошибка при записи в файл '{AI_RESULT_FILE}': {e}")
+        logging.error(f"!!! Error writing to file '{AI_RESULT_FILE}': {e}")
 
-
-class WebReportHandler(http.server.SimpleHTTPRequestHandler):
-    def do_GET(self):
-        if self.path == '/':
-            self.path = REPORT_FILE
-        return http.server.SimpleHTTPRequestHandler.do_GET(self)
-
-def run_server(directory="."):
-    """Запускает простой веб-сервер."""
-    os.chdir(directory)
-    httpd = socketserver.TCPServer((SERVER_ADDRESS, PORT), WebReportHandler)
-    print(f"Сервер запущен на http://{SERVER_ADDRESS}:{PORT}/")
-    httpd.serve_forever()
-    print("Сервер остановлен.")
-
-
-url = '/home/ruslan/Develop/LinuxTools/AI_logs_analitic/ai_result_llama.txt'
 
 async def main():
     await tg_send("Запущен анализ логов")
@@ -190,13 +132,13 @@ async def main():
     log_name = LOG_FILE
     print(f"Starting log analysis from '{log_name}'...")
     analysis_count = 0
-    # Очищаем файл с результатами перед новым анализом
+    # Cleaning old report
     with open(AI_RESULT_FILE, 'w', encoding='utf-8') as f:
         pass
     logging.info('clened old reports')
 
     for chunk in chankinizator(log_name):
-        if not chunk.strip(): # Пропускаем пустые чанки
+        if not chunk.strip():
             continue
         analysis_count += 1
         print(f"\n--- Analyzing Chunk {analysis_count} ---")
@@ -221,5 +163,5 @@ if __name__ == "__main__":
     setup_logging()
     logging.info("Logging was setup")
     asyncio.run(main())
+    cleaning_logs(LOG_FOLDER, 30)
     logging.info("Analazer was finally end working")
-    print("Выход из основной программы.")
