@@ -1,20 +1,20 @@
 import os
 import time
 import asyncio 
-import subprocess
-import threading
-import logger_config
 import logging
 import datetime
+import threading
+import subprocess
 import cleaning_logs
-from string import Template
+import logger_config
 from llama_cpp import Llama
-from telegram_send import send as tg_send
+from string import Template
 from dotenv import load_dotenv
 from gpu_test import check_gpu
 from logger_config import setup_logging
+from telegram_send import send as tg_send
 from cleaning_logs import delete_old_files
-from prompts import prompt_en, prompt_ru, prompt_ua
+from prompts import prompt_en, prompt_ru, prompt_ua, summarisation
 
 
 
@@ -22,8 +22,7 @@ load_dotenv()
 
 # Settings from .env
 REPORT_FILE = os.getenv('REPORT_FILE', "ai_result_llama.txt")
-ENCODING = os.getenv("ENCODING", "UTF-8")  # Кодировка для отчета
-PORT = int(os.getenv('PORT', 8000))  # Получаем порт из .env или используем 8000 по умолчанию
+ENCODING = os.getenv("ENCODING", "UTF-8")  # Encode report
 SERVER_ADDRESS = os.getenv("SERVER_ADDRESS", "localhost.com")
 
 # Report name and log fole name.
@@ -39,16 +38,20 @@ CHAT_ID = os.getenv('CHAT_ID')
 N_GPU = check_gpu()
 logging.info(f'Setup n_gpu_layers = {N_GPU}')
 
+CHUNK_SIZE = os.getenv("CHUNK_SIZE", 150)
+
+
 
 
 llm = Llama(
       model_path="/home/ruslan/.cache/lm-studio/models/bartowski/google_gemma-3-12b-it-GGUF/google_gemma-3-12b-it-Q4_K_S.gguf",
       n_gpu_layers=N_GPU, 
       # seed=1337, 
-      n_ctx=14000, 
+      n_ctx=17000, 
       use_mmap=True,
       verbose=False, # llama_cpp debug out (quiet)
 )
+
 
 
 def log_analizator(chunk):
@@ -56,34 +59,27 @@ def log_analizator(chunk):
     Llama linux log analitic
     """
     prompt = os.getenv('PROMPT_LANGUAGE', 'RU')
+
     if prompt == 'EN':
         prompt = Template(prompt_en).substitute(chunk=chunk)
-        logging.info(f"Chose language English")
-        print(chunk)
     elif prompt == 'UA':
         prompt = Template(prompt_ua).substitute(chunk=chunk)
-        logging.info(f"Chose language Ukrainian")
-        print(chunk)
     else:
         prompt = Template(prompt_ru).substitute(chunk=chunk)
-        logging.info(f"Chose language Russian")
-        print(chunk)
 
-    answer = "Ошибка: Не удалось получить ответ от модели." # Значение по умолчанию
+    answer = "Error, no answer from LLM" # Default anwer value
 
     try:
         output_dict = llm(
             prompt,
             max_tokens=2300, # Generate up to 2300 tokens
             # stop=["Q:", "\n"], # Stop generating just before the model would generate a new question - возможно, стоит раскомментировать, если модель добавляет лишнее
-            echo=False # Установите False, чтобы не включать промпт в ответ модели
-                       # Если оставить True, нужно будет парсить ответ иначе
-        ) # Generate a completion
-
-
+            echo=False # Setup False, for not prompt in answer
+        ) 
+        
         # Extract text answer from dict 
         if output_dict and "choices" in output_dict and len(output_dict["choices"]) > 0 and "text" in output_dict["choices"][0]:
-            answer = output_dict["choices"][0]["text"].strip() # Получаем текст и убираем лишние пробелы по краям
+            answer = output_dict["choices"][0]["text"].strip()
         else:
             logging.error(f"Wrong LLM answer {output_dict}")
             answer = "Error: wrong format anser from  LLM."
@@ -93,16 +89,14 @@ def log_analizator(chunk):
         logging.critical(f"!!! Unexpected error {e}")
         return None 
 
-    print("--- AI Analysis Result ---")
-    print(answer)
-    print("------------------------")
-
+    # Writing AI analitic result to report file
     _write_results(answer)
     return answer
 
 
 def chankinizator(log):
-    chunk_size = 200
+
+    chunk_size = CHUNK_SIZE
     try:
         with open(log, 'r', encoding='utf-8') as file:
             lines = file.readlines()
@@ -115,7 +109,7 @@ def chankinizator(log):
         yield ''.join(chunk)
 
 def _write_results(report_text):
-    report_text += "**Время создания:** " + time.strftime("%Y-%m-%d %H:%M:%S") + "\n\n"
+    report_text += "**Timestamp created:** " + time.strftime("%Y-%m-%d %H:%M:%S") + "\n\n"
     try:
         with open(AI_RESULT_FILE, 'a', encoding='utf-8') as file:
             file.write(report_text + "\n---\n")
@@ -149,14 +143,12 @@ async def main():
     logging.info(f'report created {AI_RESULT_FILE}')
 
     
-    # 3. Отправка сообщения в Telegram
+    # 3. Sending to Telegram
     if BOT_TOKEN and CHAT_ID:
         telegram_message = f"Отчет об анализе логов готов. Имя файла: {AI_RESULT_FILE}"
         await tg_send(telegram_message)
         logging.info('Sended nitification in Telegram')
-        print("Сообщение отправлено в Telegram.")
     else:
-        print("Предупреждение: BOT_TOKEN или CHAT_ID не найдены. Сообщение в Telegram не отправлено.")
         logging.error("CHAT_ID or BOT_TOKEN can't finded")
 
 if __name__ == "__main__":
