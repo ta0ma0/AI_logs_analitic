@@ -178,39 +178,6 @@ def run_server(directory="."):
     httpd.serve_forever()
     print("Сервер остановлен.")
 
-def open_browser_as_user(url, username):
-    """Пытается открыть URL в новой вкладке существующего Firefox от имени пользователя."""
-    display = os.environ.get('DISPLAY')
-    if display:
-        try:
-            subprocess.run(
-                ["su", "-", username, "-c", f"export DISPLAY='{display}'; chromium -new-tab '{url}'"],
-                check=True,
-                capture_output=True,
-                text=True
-            )
-            print(f"Попытка открыть новую вкладку в Firefox от имени пользователя {username} с URL: {url} (DISPLAY={display})")
-        except subprocess.CalledProcessError as e:
-            print(f"Ошибка при попытке открыть новую вкладку в Firefox от имени пользователя {username}: {e}")
-            print(f"Stdoutput: {e.stdout}")
-            print(f"Stderr: {e.stderr}")
-            # Если не удалось открыть новую вкладку, можно попробовать запустить новый экземпляр (менее предпочтительно)
-            try:
-                subprocess.run(
-                    ["su", "-", username, "-c", f"export DISPLAY='{display}'; chromium '{url}'"],
-                    check=True,
-                    capture_output=True,
-                    text=True
-                )
-                print(f"Запущен новый экземпляр Firefox от имени пользователя {username} с URL: {url} (DISPLAY={display})")
-            except subprocess.CalledProcessError as e2:
-                print(f"Ошибка при запуске нового экземпляра Firefox от имени пользователя {username}: {e2}")
-                print(f"Stdoutput: {e2.stdout}")
-                print(f"Stderr: {e2.stderr}")
-        except FileNotFoundError:
-            print(f"Ошибка: Команда 'su' или 'firefox' не найдена.")
-    else:
-        print("Предупреждение: Переменная DISPLAY не установлена. Невозможно запустить Firefox.")
 
 url = '/home/ruslan/Develop/LinuxTools/AI_logs_analitic/ai_result_llama.txt'
 
@@ -240,12 +207,10 @@ async def main():
     logging.info(f'report created {AI_RESULT_FILE}')
 
     
-    open_browser_as_user(url, username)
-    logging.info('browser opened')
     # 3. Отправка сообщения в Telegram
     if BOT_TOKEN and CHAT_ID:
-        telegram_message = "Отчет об анализе логов готов:"
-        await tg_send(telegram_message, report_url)
+        telegram_message = f"Отчет об анализе логов готов. Имя файла: {AI_RESULT_FILE}"
+        await tg_send(telegram_message)
         logging.info('Sended nitification in Telegram')
         print("Сообщение отправлено в Telegram.")
     else:

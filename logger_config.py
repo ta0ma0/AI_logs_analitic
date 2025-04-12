@@ -22,27 +22,28 @@ LOG_FILE_NAME = f"{LOG_FILE_NAME_BASE}_{datetime.now().strftime('%Y%m%d_%H%M%S')
 LOG_FILE_PATH = os.path.join(LOG_FOLDER, LOG_FILE_NAME)
 
 def setup_logging():
-    """Настраивает базовое логирование для приложения."""
-    logging.basicConfig(
-        level=LOG_LEVEL_CONSOLE,
-        format=LOG_FORMAT,
-        datefmt=DATE_FORMAT
-    )
-
+    """Настраивает логирование в файл и консоль."""
     # Создаем папку для логов, если она не существует
     if not os.path.exists(LOG_FOLDER):
         os.makedirs(LOG_FOLDER)
 
+    # Получаем корневой логгер
+    logger = logging.getLogger()
+    logger.setLevel(min(LOG_LEVEL_CONSOLE, LOG_LEVEL_FILE)) # Устанавливаем минимальный уровень для логгера
+
+    formatter = logging.Formatter(LOG_FORMAT, datefmt=DATE_FORMAT)
+
+    # Создаем обработчик для вывода логов в консоль
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(LOG_LEVEL_CONSOLE)
+    console_handler.setFormatter(formatter)
+    logger.addHandler(console_handler)
+
     # Создаем обработчик для записи логов в файл
     file_handler = logging.FileHandler(LOG_FILE_PATH, encoding='utf-8')
     file_handler.setLevel(LOG_LEVEL_FILE)
-    formatter_file = logging.Formatter(LOG_FORMAT, datefmt=DATE_FORMAT)
-    file_handler.setFormatter(formatter_file)
-
-    # Получаем корневой логгер и добавляем обработчик файла
-    logger = logging.getLogger()
+    file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
-
 
 if __name__ == "__main__":
     setup_logging()
