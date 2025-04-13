@@ -170,7 +170,9 @@ async def main():
     with open(AI_RESULT_FILE, 'w', encoding='utf-8') as f:
         pass
     logging.info('clened old reports')
-
+    # GPU check
+    N_GPU = check_gpu()
+    logging.info(f'Setup n_gpu_layers = {N_GPU}')
     for chunk in chankinizator(log_name):
         if not chunk.strip():
             continue
@@ -202,9 +204,7 @@ if __name__ == "__main__":
     setup_logging()
     logging.info("Logging was setup")
 
-    # GPU check
-    N_GPU = check_gpu()
-    logging.info(f'Setup n_gpu_layers = {N_GPU}')
+
 
     # Main loop
     start_time = asyncio.run(main())

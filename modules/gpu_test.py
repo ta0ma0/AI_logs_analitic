@@ -1,11 +1,10 @@
 import logging
 import datetime
 import subprocess
-import settings.logger_config
 from datetime import datetime
-from settings.logger_config import setup_logging
 
-
+MAX = 8
+MIN = 4
 
 def check_gpu():
     """
@@ -29,16 +28,13 @@ def check_gpu():
         verbose=False, # Добавлено, чтобы уменьшить вывод от llama_cpp
     )
     """
-    MAX = 8
-    MIN = 4
+
     vmachine_marker = subprocess.run(['VBoxManage', 'list', 'runningvms'], capture_output=True, text=True, check=True)
 
     if len(vmachine_marker.stdout) == 0:
-        logging.info(f'Setup n_gpu_layers = {MAX}')
         return MAX
     else:
-        logging.info(f'Setup n_gpu_layers = {MIN}')
         return MIN
 
 
-# print(check_gpu)
+# print(check_gpu())
