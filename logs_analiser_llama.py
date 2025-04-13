@@ -27,12 +27,10 @@ ENCODING = os.getenv("ENCODING", "UTF-8")  # Encode report
 
 # Report name and log fole name.
 PROJECT_ROOT = "/home/ruslan/Develop/LinuxTools/AI_logs_analitic"
-AI_RESULT_FILE = os.path.join(PROJECT_ROOT, "data", "ai_result_llama.txt")
-AI_SUMMARY_FILE = os.path.join(PROJECT_ROOT, "data", "ai_summary.md")
+AI_RESULT_FILE = os.path.join(PROJECT_ROOT, "data", "reports", "ai_result_llama.txt")
+AI_SUMMARY_FILE = os.path.join(PROJECT_ROOT, "data", "reports", "ai_summary.md")
 LOG_FOLDER = os.path.join(PROJECT_ROOT, "data/logs")
 LOG_FILE = os.path.join(PROJECT_ROOT, "data", "daily_log_report.txt")
-# AI_RESULT_FILE = os.getenv("AI_RESULT_FILE", "data/ai_result_llama.txt")
-# AI_RESUME_FILE = os.getenv("AI_RESUME_FILE", "data/ai_summary.md")
 
 # Telegram
 BOT_TOKEN = os.getenv('BOT_TOKEN')
