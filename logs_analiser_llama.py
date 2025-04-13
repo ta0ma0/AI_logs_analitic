@@ -43,7 +43,8 @@ CHUNK_SIZE = os.getenv("CHUNK_SIZE", 150)
 # Inicialisation
 setup_logging()
 logging.info("Logging was setup")
-N_GPU = check_gpu()
+# N_GPU = check_gpu()
+N_GPU = 4
 logging.info(f'Setup n_gpu_layers = {N_GPU}')
 
 def create_directory_hierarchy():
