@@ -12,22 +12,21 @@ import time
 load_dotenv()
 
 # Settings from .env
-REPORT_FILE = os.getenv('REPORT_FILE', "ai_result_llama.txt")
+AI_RESULT_FILE = os.getenv('REPORT_FILE', "ai_result_llama.txt")
 ENCODING = os.getenv("ENCODING", "UTF-8")  # Encode report
 AI_SUMMARY_FILE = os.getenv("AI_SUMMARY_FILE", "ai_summary.md")
 
 
-def read_reports(REPORT_FILE):
-    with open(REPORT_FILE) as report_file:
+def read_reports(AI_RESULT_FILE):
+    with open(AI_RESULT_FILE, 'r', encoding='utf-8') as report_file:
         report_text = report_file.read()
     return report_text
 
 
 def summarisation_report():
-    report_text = read_reports(REPORT_FILE)
+    report_text = read_reports(AI_RESULT_FILE)
     prompt = Template(summarisation).substitute(report=report_text)
     N_GPU = check_gpu()
-    logging.info(f'Setup n_gpu_layers = {N_GPU}')
 
 
     llm = Llama(

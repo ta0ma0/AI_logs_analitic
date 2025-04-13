@@ -14,6 +14,7 @@ from gpu_test import check_gpu
 from logger_config import setup_logging
 from telegram_send import send as tg_send
 from cleaning_logs import delete_old_files
+from summarize import summarisation_report
 from prompts import prompt_en, prompt_ru, prompt_ua, summarisation
 
 
@@ -21,43 +22,36 @@ from prompts import prompt_en, prompt_ru, prompt_ua, summarisation
 load_dotenv()
 
 # Settings from .env
-REPORT_FILE = os.getenv('REPORT_FILE', "ai_result_llama.txt")
+REPORT_FILE = os.getenv('REPORT_FILE', "data/ai_result_llama.txt")
 ENCODING = os.getenv("ENCODING", "UTF-8")  # Encode report
-SERVER_ADDRESS = os.getenv("SERVER_ADDRESS", "localhost.com")
 
 # Report name and log fole name.
-LOG_FOLDER = os.getenv("LOG_FOLDER", "logs")
-LOG_FILE = os.getenv("LOG_FILE", "daily_log_report.txt")
-AI_RESULT_FILE = os.getenv("AI_RESULT_FILE", "ai_result_llama.txt")
+LOG_FOLDER = os.getenv("LOG_FOLDER", "data/logs")
+LOG_FILE = os.getenv("LOG_FILE", "data/daily_log_report.txt")
+AI_RESULT_FILE = os.getenv("AI_RESULT_FILE", "data/ai_result_llama.txt")
+AI_RESUME_FILE = os.getenv("AI_RESUME_FILE", "data/ai_summary.md")
 
 # Telegram
 BOT_TOKEN = os.getenv('BOT_TOKEN')
 CHAT_ID = os.getenv('CHAT_ID')
 
-# GPU check
-N_GPU = check_gpu()
-logging.info(f'Setup n_gpu_layers = {N_GPU}')
+
 
 CHUNK_SIZE = os.getenv("CHUNK_SIZE", 150)
 
+def log_analizator(chunk):
 
-
-
-llm = Llama(
+    """
+    Llama linux log analitic
+    """
+    llm = Llama(
       model_path="/home/ruslan/.cache/lm-studio/models/bartowski/google_gemma-3-12b-it-GGUF/google_gemma-3-12b-it-Q4_K_S.gguf",
       n_gpu_layers=N_GPU, 
       # seed=1337, 
       n_ctx=17000, 
       use_mmap=True,
       verbose=False, # llama_cpp debug out (quiet)
-)
-
-
-
-def log_analizator(chunk):
-    """
-    Llama linux log analitic
-    """
+    )
     prompt = os.getenv('PROMPT_LANGUAGE', 'RU')
 
     if prompt == 'EN':
@@ -96,7 +90,7 @@ def log_analizator(chunk):
 
 def chankinizator(log):
 
-    chunk_size = CHUNK_SIZE
+    chunk_size = int(CHUNK_SIZE)
     try:
         with open(log, 'r', encoding='utf-8') as file:
             lines = file.readlines()
@@ -117,11 +111,21 @@ def _write_results(report_text):
         logging.error(f"!!! Error writing to file '{AI_RESULT_FILE}': {e}")
 
 
+def format_timedelta(delta):
+    """
+    Форматирует объект timedelta в строку вида ЧЧ:ММ:СС.
+    """
+    total_seconds = int(delta.total_seconds())
+    hours = total_seconds // 3600
+    minutes = (total_seconds % 3600) // 60
+    seconds = total_seconds % 60
+    return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+
 async def main():
     await tg_send("Запущен анализ логов")
     # Сбор логов
-    subprocess.run(['./collect_logs.sh'])
-    logging.info('start logs collection - journalctl')
+    # subprocess.run(['./collect_logs.sh'])
+    # logging.info('start logs collection - journalctl')
 
     log_name = LOG_FILE
     print(f"Starting log analysis from '{log_name}'...")
@@ -141,19 +145,36 @@ async def main():
 
     print(f"\nLog analysis finished. Results saved to '{AI_RESULT_FILE}'.")
     logging.info(f'report created {AI_RESULT_FILE}')
+    time.sleep(10) # Waiting for nload model
+    logging.info("Starting summarisation report")
+    summarisation_report()
 
-    
-    # 3. Sending to Telegram
+    # Sending to Telegram
     if BOT_TOKEN and CHAT_ID:
-        telegram_message = f"Отчет об анализе логов готов. Имя файла: {AI_RESULT_FILE}"
+        telegram_message = f"Отчет об анализе логов готов. Имя файла: {AI_RESUME_FILE}"
         await tg_send(telegram_message)
         logging.info('Sended nitification in Telegram')
     else:
-        logging.error("CHAT_ID or BOT_TOKEN can't finded")
+        logging.error("CHAT_ID or BOT_TOKEN can't found in .env file")
 
 if __name__ == "__main__":
+    start_time = datetime.datetime.now()
+
+    # Inicialisation
     setup_logging()
     logging.info("Logging was setup")
+
+    # GPU check
+    N_GPU = check_gpu()
+    logging.info(f'Setup n_gpu_layers = {N_GPU}')
+
+    # Main loop
     asyncio.run(main())
-    cleaning_logs(LOG_FOLDER, 30)
+
+    # After work
+    delete_old_files(LOG_FOLDER, 7)
     logging.info("Analazer was finally end working")
+    end_time = datetime.datetime.now()
+    execution_time = end_time - start_time
+    total_exec_time = f"Total execution time: {format_timedelta(execution_time)}"
+    logging.info(f"Execution time: {total_exec_time}")

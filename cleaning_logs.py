@@ -2,6 +2,7 @@ import os
 import time
 import datetime
 from pathlib import Path
+import logging
 from logger_config import setup_logging
 
 def delete_old_files(directory: str, days_old: int):
