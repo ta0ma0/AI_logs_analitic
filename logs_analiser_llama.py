@@ -40,7 +40,11 @@ MODEL_PATH = os.path.join(PROJECT_ROOT, "models")
 
 
 CHUNK_SIZE = os.getenv("CHUNK_SIZE", 150)
-
+# Inicialisation
+setup_logging()
+logging.info("Logging was setup")
+N_GPU = check_gpu()
+logging.info(f'Setup n_gpu_layers = {N_GPU}')
 
 def create_directory_hierarchy():
     """
@@ -171,8 +175,7 @@ async def main():
         pass
     logging.info('clened old reports')
     # GPU check
-    N_GPU = check_gpu()
-    logging.info(f'Setup n_gpu_layers = {N_GPU}')
+    
     for chunk in chankinizator(log_name):
         if not chunk.strip():
             continue
@@ -200,9 +203,7 @@ async def main():
 if __name__ == "__main__":
     create_directory_hierarchy()
 
-    # Inicialisation
-    setup_logging()
-    logging.info("Logging was setup")
+
 
 
 
