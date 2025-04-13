@@ -40,7 +40,7 @@ pip install -r requirements.txt
 BOT_TOKEN = xxxxxxxxxxxxxxxxxxxxxxxxxxx # Токен бота, взять у Botfather (предварительно надо создать)
 CHAT_ID = xxxxxxx # Идентификатор вашего чата (предварительно надо создать), можно увидеть в Web интерфейсе телеграмма в адресной строке.
 ```
-5. Скачайте LLM  и положите в MODEL_PATH (.env) директори (по умолчанию "models"), либо укажите путь до уже существующей.
+5. Скачайте LLM  и положите в MODEL_PATH (.env) директори (по умолчанию "models"), либо укажите путь до уже существующей. Тестировалось и создавалось с google_gemma-3-12b-it-GGUF [HuggingFace](https://huggingface.co/)
 
 ## Использование
 
@@ -59,7 +59,7 @@ sudo crontab -e
 
 Например:
 
-00 10 * * * path_to_programm/run.sh
+00 10 * * * /path_to_programm/run.sh
 ```
 
 ## Возможные проблемы
@@ -126,7 +126,7 @@ source venv/bin/activate
     CHAT_ID = xxxxxxx # Your chat ID (you need to create a chat first), can be found in the Telegram web interface address bar.
     ```
     
-5. Download LLM model and put into MODEL_PATH (.env) directory (default "models")
+5. Download LLM model and put into MODEL_PATH (.env) directory (default "models") For example: google_gemma-3-12b-it-GGUF [HuggingFace](https://huggingface.co/)
 
 ## Usage
 
@@ -150,8 +150,8 @@ source venv/bin/activate
 
 ## Possible troubles
 
-If yoy got
- 
+If you got
+
 ```
 Traceback (most recent call last):
   File "/home/ruslan/opt/Logomancy/logs_analiser_llama.py", line 30, in <module>
