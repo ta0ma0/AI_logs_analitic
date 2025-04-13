@@ -41,6 +41,38 @@ MODEL_PATH = os.path.join(PROJECT_ROOT, "models")
 
 CHUNK_SIZE = os.getenv("CHUNK_SIZE", 150)
 
+
+def create_directory_hierarchy():
+    """
+    Создает иерархию директорий 'data', 'data/logs' и 'data/reports'
+    в текущей рабочей директории, если они не существуют.
+    Если директории уже существуют, функция ничего не делает.
+    """
+    base_dir = "data"
+    logs_dir = os.path.join(base_dir, "logs")
+    reports_dir = os.path.join(base_dir, "reports")
+
+    # Создаем корневую директорию 'data', если она не существует
+    if not os.path.exists(base_dir):
+        os.makedirs(base_dir)
+        print(f"Создана директория: {base_dir}")
+    else:
+        print(f"Директория '{base_dir}' уже существует.")
+
+    # Создаем директорию 'logs' внутри 'data', если она не существует
+    if not os.path.exists(logs_dir):
+        os.makedirs(logs_dir)
+        print(f"Создана директория: {logs_dir}")
+    else:
+        print(f"Директория '{logs_dir}' уже существует.")
+
+    # Создаем директорию 'reports' внутри 'data', если она не существует
+    if not os.path.exists(reports_dir):
+        os.makedirs(reports_dir)
+        print(f"Создана директория: {reports_dir}")
+    else:
+        print(f"Директория '{reports_dir}' уже существует.")
+
 def log_analizator(chunk):
 
     """
@@ -164,7 +196,7 @@ async def main():
     return start_time
 
 if __name__ == "__main__":
-    
+    create_directory_hierarchy()
 
     # Inicialisation
     setup_logging()
