@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from settings.prompts import summarisation
 from modules.gpu_test import check_gpu
 
-PROJECT_ROOT = "/home/ruslan/Develop/LinuxTools/AI_logs_analitic"
+PROJECT_ROOT = os.getenv("PROJECT_ROOT")
 AI_RESULT_FILE = os.path.join(PROJECT_ROOT, "data", "ai_result_llama.txt")
 AI_SUMMARY_FILE = os.path.join(PROJECT_ROOT, "data", "ai_summary.md")
 
@@ -16,10 +16,9 @@ AI_SUMMARY_FILE = os.path.join(PROJECT_ROOT, "data", "ai_summary.md")
 load_dotenv()
 
 # Settings from .env
-# AI_RESULT_FILE = os.getenv('REPORT_FILE', "ai_result_llama.txt")
 ENCODING = os.getenv("ENCODING", "UTF-8")  # Encode report
-# AI_SUMMARY_FILE = os.getenv("AI_SUMMARY_FILE", "ai_summary.md")
-
+N_GPU = os.getenv("N_GPU", 4)
+logging.info(f'Setup n_gpu_layers = {N_GPU}')
 
 def read_reports(AI_RESULT_FILE):
     with open(AI_RESULT_FILE, 'r', encoding='utf-8') as report_file:

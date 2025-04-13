@@ -44,7 +44,7 @@ CHUNK_SIZE = os.getenv("CHUNK_SIZE", 150)
 setup_logging()
 logging.info("Logging was setup")
 # N_GPU = check_gpu()
-N_GPU = 4
+N_GPU = os.getenv("N_GPU", 4)
 logging.info(f'Setup n_gpu_layers = {N_GPU}')
 
 def create_directory_hierarchy():
@@ -174,7 +174,7 @@ async def main():
     # Cleaning old report
     with open(AI_RESULT_FILE, 'w', encoding='utf-8') as f:
         pass
-    logging.info('clened old reports')
+    logging.info('cleaned old reports')
     # GPU check
     
     for chunk in chankinizator(log_name):
@@ -187,7 +187,7 @@ async def main():
 
     print(f"\nLog analysis finished. Results saved to '{AI_RESULT_FILE}'.")
     logging.info(f'report created {AI_RESULT_FILE}')
-    time.sleep(10) # Waiting for nload model
+    time.sleep(15) # Waiting for load model
     logging.info("Starting summarisation report")
     summarisation_report()
 
