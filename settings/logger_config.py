@@ -3,7 +3,8 @@ import os
 from datetime import datetime
 from dotenv import load_dotenv
 
-PROJECT_ROOT = "/home/ruslan/Develop/LinuxTools/AI_logs_analitic"
+# PROJECT_ROOT = "/home/ruslan/Develop/LinuxTools/AI_logs_analitic"
+PROJECT_ROOT = os.getenv("PROJECT_ROOT")
 
 
 load_dotenv()
