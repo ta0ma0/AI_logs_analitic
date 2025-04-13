@@ -62,6 +62,21 @@ sudo crontab -e
 00 10 * * * path_to_programm/run.sh
 ```
 
+## Возможные проблемы
+
+Если при первом тестовом запуске ```sudo ./run.sh``` вы получаете ошибку типа:
+
+```
+Traceback (most recent call last):
+  File "/home/ruslan/opt/Logomancy/logs_analiser_llama.py", line 30, in <module>
+    AI_RESULT_FILE = os.path.join(PROJECT_ROOT, "data", "reports", "ai_result_llama.txt")
+  File "<frozen posixpath>", line 77, in join
+TypeError: expected str, bytes or os.PathLike object, not NoneType
+```
+Вам нужно заполнить переменную PROJECT_ROOT в .env файле.
+
+Узнать можно командой pwd из проекта.
+
 # README ENGLISH VERSION
 
 
@@ -132,3 +147,16 @@ source venv/bin/activate
 
     00 10 * * * path_to_programm/run.sh
     ```
+
+## Possible troubles
+
+If yoy got
+ 
+```
+Traceback (most recent call last):
+  File "/home/ruslan/opt/Logomancy/logs_analiser_llama.py", line 30, in <module>
+    AI_RESULT_FILE = os.path.join(PROJECT_ROOT, "data", "reports", "ai_result_llama.txt")
+  File "<frozen posixpath>", line 77, in join
+TypeError: expected str, bytes or os.PathLike object, not NoneType
+```
+Fill PROJECT_ROOT in .env file
