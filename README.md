@@ -22,18 +22,25 @@ git clone https://github.com/ta0ma0/Logomancy.git
 cd Logomancy
 ```
 
-2. Установите зависимости
+2. Создайте витуальное окружение
+```
+python3 -m venv venv
+source venv/bin/activate
+```
+
+3. Установите зависимости
 
 ```bash
 pip install -r requirements.txt
 ```
-3. Настройте .env
+4. Настройте .env
 
 Обязательные поля для уведомления в Telegram.
 ```
 BOT_TOKEN = xxxxxxxxxxxxxxxxxxxxxxxxxxx # Токен бота, взять у Botfather (предварительно надо создать)
 CHAT_ID = xxxxxxx # Идентификатор вашего чата (предварительно надо создать), можно увидеть в Web интерфейсе телеграмма в адресной строке.
 ```
+5. Скачайте LLM  и положите в MODEL_PATH (.env) директори (по умолчанию "models"), либо укажите путь до уже существующей.
 
 ## Использование
 
@@ -82,13 +89,20 @@ A program for analyzing systemd logs (Linux). It collects logs using journalctl 
     cd Logomancy
     ```
 
-2.  Install dependencies:
+2. Create venv enviroment
+
+```
+python3 -m venv venv
+source venv/bin/activate
+```
+
+3.  Install dependencies:
 
     ```bash
     pip install -r requirements.txt
     ```
 
-3.  Configure `.env`:
+4.  Configure `.env`:
 
     Mandatory fields for Telegram notifications:
 
@@ -97,7 +111,7 @@ A program for analyzing systemd logs (Linux). It collects logs using journalctl 
     CHAT_ID = xxxxxxx # Your chat ID (you need to create a chat first), can be found in the Telegram web interface address bar.
     ```
     
-4. Download LLM model and put into MODEL_PATH (.env) directory (default "models")
+5. Download LLM model and put into MODEL_PATH (.env) directory (default "models")
 
 ## Usage
 
