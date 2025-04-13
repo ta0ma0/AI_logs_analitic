@@ -3,12 +3,15 @@ import os
 from datetime import datetime
 from dotenv import load_dotenv
 
+PROJECT_ROOT = "/home/ruslan/Develop/LinuxTools/AI_logs_analitic"
+
+
 load_dotenv()
 
 # --- Настройки логирования из .env ---
 LOG_LEVEL_CONSOLE_STR = os.getenv("LOG_LEVEL_CONSOLE", "INFO").upper()
 LOG_LEVEL_FILE_STR = os.getenv("LOG_LEVEL_FILE", "DEBUG").upper()
-LOG_FOLDER = os.getenv("LOG_FOLDER", "logs")
+LOG_FOLDER = os.path.join(PROJECT_ROOT, "data", "logs")
 LOG_FILE_NAME_BASE = os.getenv("LOG_FILE_NAME_BASE", "app")
 LOG_FORMAT = os.getenv("LOG_FORMAT", '%(asctime)s - %(levelname)s - %(module)s:%(lineno)d - %(message)s')
 DATE_FORMAT = os.getenv("DATE_FORMAT", '%Y-%m-%d %H:%M:%S')
