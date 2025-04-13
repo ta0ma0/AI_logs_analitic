@@ -26,7 +26,7 @@ REPORT_FILE = os.getenv('REPORT_FILE', "data/ai_result_llama.txt")
 ENCODING = os.getenv("ENCODING", "UTF-8")  # Encode report
 
 # Report name and log fole name.
-PROJECT_ROOT = "/home/ruslan/Develop/LinuxTools/AI_logs_analitic"
+PROJECT_ROOT = os.getenv('PROJECT_ROOT')
 AI_RESULT_FILE = os.path.join(PROJECT_ROOT, "data", "reports", "ai_result_llama.txt")
 AI_SUMMARY_FILE = os.path.join(PROJECT_ROOT, "data", "reports", "ai_summary.md")
 LOG_FOLDER = os.path.join(PROJECT_ROOT, "data/logs")
