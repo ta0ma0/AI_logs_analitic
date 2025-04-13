@@ -36,6 +36,7 @@ LOG_FILE = os.path.join(PROJECT_ROOT, "data", "daily_log_report.txt")
 BOT_TOKEN = os.getenv('BOT_TOKEN')
 CHAT_ID = os.getenv('CHAT_ID')
 
+MODEL_PATH = os.path.join(PROJECT_ROOT, "models")
 
 
 CHUNK_SIZE = os.getenv("CHUNK_SIZE", 150)

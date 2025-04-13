@@ -96,6 +96,8 @@ A program for analyzing systemd logs (Linux). It collects logs using journalctl 
     BOT_TOKEN = xxxxxxxxxxxxxxxxxxxxxxxxxxx # Your bot token, obtained from BotFather (you need to create a bot first)
     CHAT_ID = xxxxxxx # Your chat ID (you need to create a chat first), can be found in the Telegram web interface address bar.
     ```
+    
+4. Download LLM model and put into MODEL_PATH (.env) directory (default "models")
 
 ## Usage
 
