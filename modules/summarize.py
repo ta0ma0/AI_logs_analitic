@@ -1,20 +1,24 @@
-from prompts import summarisation
-from dotenv import load_dotenv
-import logging
-import logger_config
 import os
-from llama_cpp import Llama
-from gpu_test import check_gpu
-from string import Template
 import time
+import logging
+import settings.logger_config
+from string import Template
+from llama_cpp import Llama
+from dotenv import load_dotenv
+from settings.prompts import summarisation
+from modules.gpu_test import check_gpu
+
+PROJECT_ROOT = "/home/ruslan/Develop/LinuxTools/AI_logs_analitic"
+AI_RESULT_FILE = os.path.join(PROJECT_ROOT, "data", "ai_result_llama.txt")
+AI_SUMMARY_FILE = os.path.join(PROJECT_ROOT, "data", "ai_summary.md")
 
 
 load_dotenv()
 
 # Settings from .env
-AI_RESULT_FILE = os.getenv('REPORT_FILE', "ai_result_llama.txt")
+# AI_RESULT_FILE = os.getenv('REPORT_FILE', "ai_result_llama.txt")
 ENCODING = os.getenv("ENCODING", "UTF-8")  # Encode report
-AI_SUMMARY_FILE = os.getenv("AI_SUMMARY_FILE", "ai_summary.md")
+# AI_SUMMARY_FILE = os.getenv("AI_SUMMARY_FILE", "ai_summary.md")
 
 
 def read_reports(AI_RESULT_FILE):
@@ -64,7 +68,7 @@ def summarisation_report():
 def _write_results(report_text):
     report_text += "**Timestamp created:** " + time.strftime("%Y-%m-%d %H:%M:%S") + "\n\n"
     try:
-        with open(AI_SUMMARY_FILE, 'a', encoding='utf-8') as file:
+        with open(AI_SUMMARY_FILE, 'w', encoding='utf-8') as file:
             file.write(report_text + "\n---\n")
     except Exception as e:
         logging.error(f"!!! Error writing to file '{AI_SUMMARY_FILE}': {e}")

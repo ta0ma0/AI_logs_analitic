@@ -5,17 +5,17 @@ import logging
 import datetime
 import threading
 import subprocess
-import cleaning_logs
-import logger_config
+import modules.cleaning_logs
+import settings.logger_config
 from llama_cpp import Llama
 from string import Template
 from dotenv import load_dotenv
-from gpu_test import check_gpu
-from logger_config import setup_logging
-from telegram_send import send as tg_send
-from cleaning_logs import delete_old_files
-from summarize import summarisation_report
-from prompts import prompt_en, prompt_ru, prompt_ua, summarisation
+from modules.gpu_test import check_gpu
+from settings.logger_config import setup_logging
+from modules.telegram_send import send as tg_send
+from modules.cleaning_logs import delete_old_files
+from modules.summarize import summarisation_report
+from settings.prompts import prompt_en, prompt_ru, prompt_ua, summarisation
 
 
 
@@ -26,10 +26,13 @@ REPORT_FILE = os.getenv('REPORT_FILE', "data/ai_result_llama.txt")
 ENCODING = os.getenv("ENCODING", "UTF-8")  # Encode report
 
 # Report name and log fole name.
-LOG_FOLDER = os.getenv("LOG_FOLDER", "data/logs")
-LOG_FILE = os.getenv("LOG_FILE", "data/daily_log_report.txt")
-AI_RESULT_FILE = os.getenv("AI_RESULT_FILE", "data/ai_result_llama.txt")
-AI_RESUME_FILE = os.getenv("AI_RESUME_FILE", "data/ai_summary.md")
+PROJECT_ROOT = "/home/ruslan/Develop/LinuxTools/AI_logs_analitic"
+AI_RESULT_FILE = os.path.join(PROJECT_ROOT, "data", "ai_result_llama.txt")
+AI_SUMMARY_FILE = os.path.join(PROJECT_ROOT, "data", "ai_summary.md")
+LOG_FOLDER = os.path.join(PROJECT_ROOT, "data/logs")
+LOG_FILE = os.path.join(PROJECT_ROOT, "data", "daily_log_report.txt")
+# AI_RESULT_FILE = os.getenv("AI_RESULT_FILE", "data/ai_result_llama.txt")
+# AI_RESUME_FILE = os.getenv("AI_RESUME_FILE", "data/ai_summary.md")
 
 # Telegram
 BOT_TOKEN = os.getenv('BOT_TOKEN')
@@ -103,6 +106,7 @@ def chankinizator(log):
         yield ''.join(chunk)
 
 def _write_results(report_text):
+    print(f"Current working directory: {os.getcwd()}")
     report_text += "**Timestamp created:** " + time.strftime("%Y-%m-%d %H:%M:%S") + "\n\n"
     try:
         with open(AI_RESULT_FILE, 'a', encoding='utf-8') as file:
@@ -122,6 +126,7 @@ def format_timedelta(delta):
     return f"{hours:02d}:{minutes:02d}:{seconds:02d}"
 
 async def main():
+    start_time = datetime.datetime.now()
     await tg_send("Запущен анализ логов")
     # Сбор логов
     # subprocess.run(['./collect_logs.sh'])
@@ -151,14 +156,16 @@ async def main():
 
     # Sending to Telegram
     if BOT_TOKEN and CHAT_ID:
-        telegram_message = f"Отчет об анализе логов готов. Имя файла: {AI_RESUME_FILE}"
+        telegram_message = f"Отчет об анализе логов готов. Имя файла: {AI_SUMMARY_FILE}"
         await tg_send(telegram_message)
         logging.info('Sended nitification in Telegram')
     else:
         logging.error("CHAT_ID or BOT_TOKEN can't found in .env file")
 
+    return start_time
+
 if __name__ == "__main__":
-    start_time = datetime.datetime.now()
+    
 
     # Inicialisation
     setup_logging()
@@ -169,7 +176,7 @@ if __name__ == "__main__":
     logging.info(f'Setup n_gpu_layers = {N_GPU}')
 
     # Main loop
-    asyncio.run(main())
+    start_time = asyncio.run(main())
 
     # After work
     delete_old_files(LOG_FOLDER, 7)

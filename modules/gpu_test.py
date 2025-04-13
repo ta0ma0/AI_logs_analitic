@@ -1,9 +1,9 @@
-import subprocess
-import logger_config
-from logger_config import setup_logging
 import logging
 import datetime
+import subprocess
+import settings.logger_config
 from datetime import datetime
+from settings.logger_config import setup_logging
 
 
 

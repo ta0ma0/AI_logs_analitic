@@ -3,7 +3,7 @@ import time
 import datetime
 from pathlib import Path
 import logging
-from logger_config import setup_logging
+from settings.logger_config import setup_logging
 
 def delete_old_files(directory: str, days_old: int):
     """
@@ -14,7 +14,7 @@ def delete_old_files(directory: str, days_old: int):
         days_old (int): The minimum age in days for files to be deleted.
                          Files modified more than this many days ago will be removed.
     """
-    setup_logging()
+    # setup_logging()
     logging.info('start log cleaner')
     dir_path = Path(directory)
 
