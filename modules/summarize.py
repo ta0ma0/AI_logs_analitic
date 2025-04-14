@@ -36,7 +36,7 @@ def summarisation_report():
         model_path="/home/ruslan/.cache/lm-studio/models/bartowski/google_gemma-3-12b-it-GGUF/google_gemma-3-12b-it-Q4_K_S.gguf",
         n_gpu_layers=N_GPU, 
         # seed=1337, 
-        n_ctx=8000, 
+        n_ctx=25000, 
         use_mmap=True,
         verbose=False, # llama_cpp debug out (quiet)
 )
