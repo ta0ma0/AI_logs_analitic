@@ -30,6 +30,7 @@ def summarisation_report():
     report_text = read_reports(AI_RESULT_FILE)
     prompt = Template(summarisation).substitute(report=report_text)
     N_GPU = check_gpu()
+    print(prompt)
 
 
     llm = Llama(
