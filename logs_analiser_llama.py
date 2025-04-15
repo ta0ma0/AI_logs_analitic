@@ -39,7 +39,7 @@ CHAT_ID = os.getenv('CHAT_ID')
 MODEL_PATH = os.path.join(PROJECT_ROOT, "models")
 
 
-CHUNK_SIZE = os.getenv("CHUNK_SIZE", 150)
+CHUNK_SIZE = os.getenv("CHUNK_SIZE", 250)
 # Inicialisation
 setup_logging()
 logging.info("Logging was setup")
