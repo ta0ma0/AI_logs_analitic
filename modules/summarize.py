@@ -37,7 +37,7 @@ def summarisation_report():
         # n_gpu_layers=N_GPU, 
         gpu_layers=N_GPU, 
         # seed=1337, 
-        n_ctx=15000, 
+        n_ctx=17500, 
         use_mmap=True,
         verbose=False, # llama_cpp debug out (quiet)
 )
@@ -45,7 +45,7 @@ def summarisation_report():
     try:
         output_dict = llm(
             prompt,
-            max_tokens=2300, # Generate up to 2300 tokens
+            max_tokens=2000, # Generate up to 2300 tokens
             # stop=["Q:", "\n"], # Stop generating just before the model would generate a new question - возможно, стоит раскомментировать, если модель добавляет лишнее
             echo=False # Setup False, for not prompt in answer
         ) 
