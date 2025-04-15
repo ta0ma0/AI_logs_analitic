@@ -37,7 +37,7 @@ def summarisation_report():
         # n_gpu_layers=N_GPU, 
         gpu_layers=N_GPU, 
         # seed=1337, 
-        n_ctx=000, 
+        n_ctx=15000, 
         use_mmap=True,
         verbose=False, # llama_cpp debug out (quiet)
 )
