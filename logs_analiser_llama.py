@@ -107,7 +107,8 @@ def log_analizator(chunk):
             prompt,
             max_tokens=2300, # Generate up to 2300 tokens
             # stop=["Q:", "\n"], # Stop generating just before the model would generate a new question - возможно, стоит раскомментировать, если модель добавляет лишнее
-            echo=False # Setup False, for not prompt in answer
+            echo=False, # Setup False, for not prompt in answer
+            temperature=0.1
         ) 
         
         # Extract text answer from dict 
