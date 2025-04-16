@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SCRIPT_PATH="$0"
-USER=`whoami`
+USER=ruslan
 
 # Получаем абсолютный путь к самому скрипту
 ABS_SCRIPT_PATH=$(readlink -f "$SCRIPT_PATH")

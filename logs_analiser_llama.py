@@ -87,8 +87,8 @@ def log_analizator(chunk):
       model_path="/home/ruslan/.cache/lm-studio/models/bartowski/google_gemma-3-12b-it-GGUF/google_gemma-3-12b-it-Q4_K_S.gguf",
       n_gpu_layers=int(N_GPU),
       # seed=1337, 
-      n_ctx=17500, 
-      use_mmap=True,
+      n_ctx=14000, 
+      use_mmap=False,
       verbose=False, # llama_cpp debug out (quiet)
     )
     prompt = os.getenv('PROMPT_LANGUAGE', 'RU')
@@ -105,10 +105,10 @@ def log_analizator(chunk):
     try:
         output_dict = llm(
             prompt,
-            max_tokens=2300, # Generate up to 2300 tokens
+            max_tokens=1500, # Generate up to 2300 tokens
             # stop=["Q:", "\n"], # Stop generating just before the model would generate a new question - возможно, стоит раскомментировать, если модель добавляет лишнее
             echo=False, # Setup False, for not prompt in answer
-            temperature=0.5
+            temperature=0.7
         ) 
         
         # Extract text answer from dict 
@@ -183,6 +183,10 @@ async def main():
             continue
         analysis_count += 1
         print(f"\n--- Analyzing Chunk {analysis_count} ---")
+        # print(chunk)
+        # chunk_string = f'"{chunk}"'
+        # count_symbols = subprocess.run(['wc', chunk_string])
+        # print(f"Count symbols: {count_symbols}")
         logging.info(f'start analizing Chunk {analysis_count}')
         log_analizator(chunk)
 
