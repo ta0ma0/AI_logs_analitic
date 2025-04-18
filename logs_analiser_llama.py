@@ -31,6 +31,8 @@ AI_RESULT_FILE = os.path.join(PROJECT_ROOT, "data", "reports", "ai_result_llama.
 AI_SUMMARY_FILE = os.path.join(PROJECT_ROOT, "data", "reports", "ai_summary.md")
 LOG_FOLDER = os.path.join(PROJECT_ROOT, "data/logs")
 LOG_FILE = os.path.join(PROJECT_ROOT, "data", "daily_log_report.txt")
+N_CTX = os.path.join(N_CTX, 15000)
+LLM_VERBOSE = os.path.join(LLM_VERBOSE, False)
 
 # Telegram
 BOT_TOKEN = os.getenv('BOT_TOKEN')
@@ -87,9 +89,9 @@ def log_analizator(chunk):
       model_path="/home/ruslan/.cache/lm-studio/models/bartowski/google_gemma-3-12b-it-GGUF/google_gemma-3-12b-it-Q4_K_S.gguf",
       n_gpu_layers=int(N_GPU),
       # seed=1337, 
-      n_ctx=15000, 
+      n_ctx=N_CTX, 
       use_mmap=False,
-      verbose=False, # llama_cpp debug out (quiet)
+      verbose=LLM_VERBOSE, # llama_cpp debug out (quiet)
     )
     prompt = os.getenv('PROMPT_LANGUAGE', 'RU')
 

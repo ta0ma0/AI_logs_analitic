@@ -11,6 +11,9 @@ from modules.gpu_test import check_gpu
 PROJECT_ROOT = os.getenv("PROJECT_ROOT")
 AI_RESULT_FILE = os.path.join(PROJECT_ROOT, "data", "reports", "ai_result_llama.txt")
 AI_SUMMARY_FILE = os.path.join(PROJECT_ROOT, "data", "reports", "ai_summary.md")
+N_CTX = os.path.join(N_CTX, 15000)
+LLM_VERBOSE = os.path.join(LLM_VERBOSE, False)
+
 
 
 load_dotenv()
@@ -40,9 +43,9 @@ def summarisation_report():
         n_gpu_layers=N_GPU, 
         # gpu_layers=N_GPU, 
         # seed=1337, 
-        n_ctx=17500, 
+        n_ctx=N_CTX, 
         use_mmap=True,
-        verbose=False, # llama_cpp debug out (quiet)
+        verbose=LLM_VERBOSE, # llama_cpp debug out (quiet)
 )
 
     try:
