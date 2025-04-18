@@ -31,8 +31,8 @@ AI_RESULT_FILE = os.path.join(PROJECT_ROOT, "data", "reports", "ai_result_llama.
 AI_SUMMARY_FILE = os.path.join(PROJECT_ROOT, "data", "reports", "ai_summary.md")
 LOG_FOLDER = os.path.join(PROJECT_ROOT, "data/logs")
 LOG_FILE = os.path.join(PROJECT_ROOT, "data", "daily_log_report.txt")
-N_CTX = os.geten(N_CTX, 15000)
-LLM_VERBOSE = os.geten(LLM_VERBOSE, False)
+N_CTX = os.getenv(N_CTX, 15000)
+LLM_VERBOSE = os.getenv(LLM_VERBOSE, False)
 
 # Telegram
 BOT_TOKEN = os.getenv('BOT_TOKEN')
