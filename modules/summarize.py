@@ -43,7 +43,7 @@ def summarisation_report():
         n_gpu_layers=N_GPU, 
         # gpu_layers=N_GPU, 
         # seed=1337, 
-        n_ctx=N_CTX, 
+        n_ctx=int(N_CTX),
         use_mmap=True,
         verbose=LLM_VERBOSE, # llama_cpp debug out (quiet)
 )
