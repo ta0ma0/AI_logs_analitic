@@ -88,7 +88,7 @@ def log_analizator(chunk):
     llm = Llama(
       model_path="/home/ruslan/.cache/lm-studio/models/bartowski/google_gemma-3-12b-it-GGUF/google_gemma-3-12b-it-Q4_K_S.gguf",
       n_gpu_layers=int(N_GPU),
-      # seed=1337, 
+      seed=1337, 
       n_ctx=int(N_CTX),
       use_mmap=False,
       verbose=LLM_VERBOSE, # llama_cpp debug out (quiet)
@@ -110,7 +110,7 @@ def log_analizator(chunk):
             max_tokens=1500, # Generate up to 2300 tokens
             # stop=["Q:", "\n"], # Stop generating just before the model would generate a new question - возможно, стоит раскомментировать, если модель добавляет лишнее
             echo=False, # Setup False, for not prompt in answer
-            temperature=0.7
+            temperature=0.6
         ) 
         
         # Extract text answer from dict 
