@@ -1,5 +1,5 @@
 # Logomancy (AI-powered Log Analysis)
-Tool for AI sustemd logs analitic
+Tool for AI systemd logs analitic
 
 ## Описание
 
